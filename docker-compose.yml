@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  pm-app:
+    container_name: portfolio-manager-app
+    build:
+      context: .
+    restart: unless-stopped
+    expose:
+      - "8020"
+    networks:
+      - frontend
+      - backend
+    volumes:
+      - pm_static_files:/opt/app/portfoliomanager/collected_files
+    depends_on:
+      - pm-db
+
+  pm-frontend:
+    container_name: pm-frontend
+    build: ./nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    networks:
+      - frontend
+    volumes:
+      - pm_static_files:/static
+    depends_on:
+      - pm-app
+
+  pm-db:
+    container_name: pm-db
+    image: postgres:13
+    env_file: ./env_files/.postgresql-env
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - backend
+
+volumes:
+  postgres_data:
+  pm_static_files:
+
+networks:
+  frontend:
+    name: "pm-frontend"
+  backend:
+    name: "pm-backend"

@@ -1,0 +1,218 @@
+{% extends 'base.html' %} 
+
+{% block applicableactions %} {% endblock applicableactions %} 
+
+{% block canvas %}{% endblock canvas %}
+
+{% block viewname %}
+  <ul class="breadcrumb">
+    <li><a href="{% url 'espps:espp-list' %}">ESPP</a></li>
+    <li><a href="#">Update ESPP</a></li>
+  </ul>
+{% endblock viewname %}
+
+{% block content %}
+  <form action="." method="POST" class="form-horizontal">
+    {% csrf_token %}
+    <div class="row">
+      <div class='col-sm-6'>
+        {% if message_color == 'green' %}
+        <div class="alert alert-success fade in alert-dismissible show" style="margin-top:18px;">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true" style="font-size:20px">×</span>
+          </button>    <strong>Success!</strong> {{message}}
+        </div>
+        {% elif message_color == 'red' %}
+        <div class="alert alert-danger fade in alert-dismissible show" style="margin-top:18px;">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true" style="font-size:20px">×</span>
+          </button>    <strong>Error!</strong> {{message}}
+        </div>
+        {% endif %}
+
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_user">User</label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <label>{{user_str}}</label> 
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_purchase_date">Purchase Date</label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <label> {{purchase_date}} </label>
+            </div>
+          </div>
+        </div>
+      
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_exchange">Exchange <span style="color:red;">*</span></label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <label>{{exchange}}</label>
+            </div>
+          </div>
+        </div>
+      
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_symbol">Symbol <span style="color:red;">*</span></label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <label>{{symbol}}</label>
+            </div>
+          </div>
+        </div>
+      
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_subscription_fmv">Subscription FMV <span style="color:red;">*</span></label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <input type="number" name="subscription_fmv" value="{{subscription_fmv}}" step="0.01" required="" id="id_subscription_fmv">
+            </div>
+          </div>
+        </div>
+      
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_purchase_fmv">Purchase FMV <span style="color:red;">*</span></label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <input type="number" name="purchase_fmv" value="{{purchase_fmv}}" step="0.01" required="" id="id_purchase_fmv">
+            </div>
+          </div>
+        </div>
+      
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_purchase_price">Purchase Price <span style="color:red;">*</span></label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <input type="number" name="purchase_price" value="{{purchase_price}}" step="0.01" required="" id="id_purchase_price">
+            </div>
+          </div>
+        </div>
+      
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_purchase_conversion_rate">Purchase Conversion Rate <span style="color:red;">*</span></label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <input type="number" name="purchase_conversion_rate" value="{{purchase_conversion_rate}}" step="0.01" required="" id="id_purchase_conversion_rate">
+              <button class="btn" id="id_forex_fetch" disabled=""><i class="fab fa-get-pocket"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_shares_purchased">Shares Purchased <span style="color:red;">*</span></label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <input type="number" name="shares_purchased" value="{{shares_purchased}}" step="1" required="" id="id_shares_purchased">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_goal">Goal</label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <select name="goal" id="id_goal">
+                <option value=""></option>
+              </select>
+            </div>
+          </div>
+        </div>
+      
+        <div class="form-group row">
+          <div class="col-sm-6">
+            <div class="md-form mt-0">
+              <button type="submit" class="btn btn-primary" name="submit">Submit</button>
+              <a href="../" class="btn btn-danger" role="button">Cancel</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </form>
+{% endblock content %}
+
+{% block ajaxcalls %}
+          {
+            url      : '/goal/get-goals/{{user|safe}}',
+            data     : null,
+            callback : get_goals_and_set_goal
+          },
+{% endblock ajaxcalls %}
+
+{% block javascript %}
+  {% load static %}
+  <script src="{% static 'common.js' %}"></script>
+  <script>
+    function update_forex_rate_fetch_btn_status() {
+      //console.log('inside update_forex_rate')
+      var exch_elem = document.getElementById("id_exchange");
+      //console.log('exch_elem value', exch_elem.value)
+      var dt_elem = document.getElementById("id_purchase_date");
+      //console.log('conv_elem value', dt_elem.value)
+      if (dt_elem.value && exch_elem.value) {
+        var conv_btn = document.getElementById("id_forex_fetch");
+        conv_btn.disabled = false;
+      } else {
+        var conv_btn = document.getElementById("id_forex_fetch");
+        conv_btn.disabled = true;
+      }
+      conv_elem = document.getElementById("id_purchase_conversion_rate");
+      conv_elem.value = '';
+    }
+    function get_forex_rate_and_populate() {
+      //console.log('fetch button clicked');
+      dt = document.getElementById("id_purchase_date").value;
+      var parts = dt.split('-');
+      var year = parts[0];
+      var month = parts[1];
+      var day = parts[2];
+      console.log(year, month, day);
+      exch = document.getElementById("id_exchange").value;
+      console.log(exch)
+      if (exch == 'NASDAQ' || exch == 'NYSE') {
+        var val = get_forex_rate(year, month, day, 'USD', 'INR');
+        console.log('received forex rate as ', val)
+        conv_elem = document.getElementById("id_purchase_conversion_rate");
+        conv_elem.value = val;
+      } else {
+        conv_elem = document.getElementById("id_purchase_conversion_rate");
+        conv_elem.value = 1;
+      }
+    }
+    //set_user_list({{users|safe}}, '{{user|safe}}');
+    function get_goals_and_set_goal(response) {
+      set_goals(response, '{{goal|safe}}');
+    }
+    btn = document.getElementById('id_forex_fetch');
+    btn.disabled = true;
+    btn.onclick = function(){
+      get_forex_rate_and_populate();
+      return false;
+    };
+    $("#id_exchange").change(function () {
+        //console.log( $(this).val() );
+        update_forex_rate_fetch_btn_status();
+    });
+    $("#id_purchase_date").change(function () {
+        //console.log( $(this).val() );
+        update_forex_rate_fetch_btn_status();
+    });
+  </script>
+{% endblock javascript %}
+
+{% block jquery %}
+      //var conv_elem = document.getElementById("id_purchase_conversion_rate");
+      //var parent = conv_elem.parentNode;
+      //var btn = document.createElement("BUTTON");
+      //btn.classList.add("btn");
+
+
+      //parent.appendChild(btn);
+
+{% endblock jquery %}

@@ -1,0 +1,136 @@
+{% extends 'base.html' %} 
+
+{% block applicableactions %} {% endblock applicableactions %} 
+
+{% block canvas %}{% endblock canvas %}
+
+{% block viewname %}
+  <ul class="breadcrumb">
+    <li><a href="{% url 'rsus:rsu-list' %}">RSU</a></li>
+    <li><a href="#">
+      {% if object %}
+        Update RSU Award
+      {% else %}
+        Create RSU Award
+      {% endif %}
+    </a></li>
+  </ul>
+{% endblock viewname %}
+
+{% block content %}
+
+  <form action="." method="POST" class="form-horizontal">
+    {% csrf_token %}
+    <div class="row">
+      <div class='col-sm-6'>
+        {% if message_color == 'green' %}
+        <div class="alert alert-success fade in alert-dismissible show" style="margin-top:18px;">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true" style="font-size:20px">×</span>
+          </button>    <strong>Success!</strong> {{message}}
+        </div>
+        {% elif message_color == 'red' %}
+        <div class="alert alert-danger fade in alert-dismissible show" style="margin-top:18px;">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true" style="font-size:20px">×</span>
+          </button>    <strong>Error!</strong> {{message}}
+        </div>
+        {% endif %}
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_award_date">Award Date <span style="color:red;">*</span></label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <input type="date" name="award_date" value={{award_date}} placeholder="Select a date" required="" id="id_award_date">
+            </div>
+          </div>
+        </div>
+      
+        <div class="form-group row">   
+          <label class="control-label col-sm-2 col-form-label" for="id_exchange">Exchange <span style="color:red;">*</span></label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <select name="exchange" required="" id="id_exchange">
+                <option value="">---------</option>
+                <option value="NASDAQ">NASDAQ</option>
+                <option value="NYSE">NYSE</option>
+                <option value="BSE">BSE</option>
+                <option value="NSE">NSE</option>
+              </select>
+            </div>
+          </div> 
+        </div>
+      
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_symbol">Symbol <span style="color:red;">*</span></label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <input type="text" name="symbol" value="{{symbol}}" maxlength="20" required="" id="id_symbol">
+            </div>
+          </div>
+        </div>
+      
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_award_id">Award id <span style="color:red;">*</span></label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <input type="text" name="award_id" value="{{award_id}}" maxlength="20" required="" id="id_award_id">
+            </div>
+          </div>
+        </div>
+      
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_user">User <span style="color:red;">*</span></label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <select name="user" required="" id="id_user">
+              </select>
+            </div>
+          </div>
+        </div>
+      
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_goal">Goal</label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <select name="goal" id="id_goal">
+                <option value=""></option>
+              </select>
+            </div>
+          </div>
+        </div>
+      
+        <div class="form-group row">
+          <label class="control-label col-sm-2 col-form-label" for="id_shares_awarded">Shares Awarded <span style="color:red;">*</span></label>
+          <div class="col-sm-3">
+            <div class="md-form mt-0">
+              <input type="number" name="shares_awarded" value="{{shares_awarded}}" step="1" required="" id="id_shares_awarded">
+            </div>
+          </div>
+        </div>
+      
+        <div class="form-group row">
+          <div class="col-sm-6">
+            <div class="md-form mt-0">
+              <button type="submit" class="btn btn-primary" name="submit">Submit</button>
+              <a href="../" class="btn btn-danger" role="button">Cancel</a>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </form>
+
+{% endblock content %}
+
+{% block javascript %}
+  {% load static %}
+  <script src="{% static 'common.js' %}"></script>
+  <script>
+    set_user_list({{users|safe}}, '{{user|safe}}');
+
+    function get_goals_and_set_goal(response) {
+      set_goals(response, '{{goal|safe}}');
+    }
+  </script>
+{% endblock javascript %}
